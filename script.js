@@ -7,11 +7,11 @@ let erpCounter = 0;
 
 // Sample data for search results
 const mockOPData = [
-    { id: 'ID001', op: 'OP-2024-001', supplier: 'Fornecedor A', invoiceNumber: 'NF-001', invoiceValue: 5000, issueDate: '2024-01-10', dueDate: '2024-02-10' },
-    { id: 'ID002', op: 'OP-2024-002', supplier: 'Fornecedor B', invoiceNumber: 'NF-002', invoiceValue: 7500, issueDate: '2024-01-15', dueDate: '2024-02-15' },
-    { id: 'ID003', op: 'OP-2024-003', supplier: 'Fornecedor C', invoiceNumber: 'NF-003', invoiceValue: 3200, issueDate: '2024-01-20', dueDate: '2024-02-20' },
-    { id: 'ID004', op: 'OP-2024-004', supplier: 'Fornecedor A', invoiceNumber: 'NF-004', invoiceValue: 9100, issueDate: '2024-01-25', dueDate: '2024-02-25' },
-    { id: 'ID005', op: 'OP-2024-005', supplier: 'Fornecedor D', invoiceNumber: 'NF-005', invoiceValue: 4500, issueDate: '2024-02-01', dueDate: '2024-03-01' },
+    { id: 'ID001', op: 'OP-2024-001', supplier: 'Fornecedor A', invoiceNumber: '', invoiceValue: '', issueDate: '', dueDate: '', observations: '' },
+    { id: 'ID002', op: 'OP-2024-002', supplier: 'Fornecedor B', invoiceNumber: '', invoiceValue: '', issueDate: '', dueDate: '', observations: '' },
+    { id: 'ID003', op: 'OP-2024-003', supplier: 'Fornecedor C', invoiceNumber: '', invoiceValue: '', issueDate: '', dueDate: '', observations: '' },
+    { id: 'ID004', op: 'OP-2024-004', supplier: 'Fornecedor A', invoiceNumber: '', invoiceValue: '', issueDate: '', dueDate: '', observations: '' },
+    { id: 'ID005', op: 'OP-2024-005', supplier: 'Fornecedor D', invoiceNumber: '', invoiceValue: '', issueDate: '', dueDate: '', observations: '' },
 ];
 
 /* ============================================
@@ -100,7 +100,8 @@ function searchOP() {
     // Filter mock data based on search term
     const results = mockOPData.filter(item => 
         item.op.toLowerCase().includes(searchTerm) ||
-        item.id.toLowerCase().includes(searchTerm)
+        item.id.toLowerCase().includes(searchTerm) ||
+        item.supplier.toLowerCase().includes(searchTerm)
     );
     
     if (results.length === 0) {
@@ -112,7 +113,7 @@ function searchOP() {
     // Display results
     searchResults.classList.add('active');
     searchResults.innerHTML = results.map(result => `
-        <div class="search-result-item" onclick="selectSearchResult('${result.id}', '${result.op}', '${result.supplier}', '${result.invoiceNumber}', ${result.invoiceValue}, '${result.issueDate}', '${result.dueDate}')">
+        <div class="search-result-item" onclick="selectSearchResult('${result.id}', '${result.op}', '${result.supplier}', '${result.invoiceNumber}', '${result.invoiceValue}', '${result.issueDate}', '${result.dueDate}')">
             <strong>${result.op}</strong> - ${result.id} - ${result.supplier}
         </div>
     `).join('');
@@ -132,10 +133,10 @@ function selectSearchResult(id, op, supplier, invoiceNumber, invoiceValue, issue
     document.getElementById('processID').value = id;
     document.getElementById('op').value = op;
     document.getElementById('supplier').value = supplier;
-    document.getElementById('invoiceNumber').value = invoiceNumber;
-    document.getElementById('invoiceValue').value = invoiceValue.toFixed(2);
-    document.getElementById('issueDate').value = issueDate;
-    document.getElementById('dueDate').value = dueDate;
+    document.getElementById('invoiceNumber').value = invoiceNumber || '';
+    document.getElementById('invoiceValue').value = invoiceValue || '';
+    document.getElementById('issueDate').value = issueDate || '';
+    document.getElementById('dueDate').value = dueDate || '';
     
     // Hide search results
     document.getElementById('searchResults').classList.remove('active');
@@ -391,3 +392,7 @@ function loadDemoData() {
 
 // Make demo loader accessible via console
 window.loadDemoData = loadDemoData;
+
+
+
+
