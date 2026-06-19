@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processamento de faturas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="loginContainer" class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h1>Processamento de faturas</h1>
+                <p>Sistema de Gestão Empresarial</p>
+            </div>
+            
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="email">Usuário</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="seu@email.com.br" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Digite sua senha" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group checkbox">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Lembrar-me</label>
+                </div>
+
+                <button type="submit" class="btn-login">Acessar Sistema</button>
+            </form>
+
+            <div class="login-footer">
+                <a href="#" class="forgot-password">Esqueceu sua senha?</a>
+            </div>
+        </div>
+
+        <div class="login-info">
+            <h2>Bem-vindo ao Processamento de faturas</h2>
+            <p>Gerencie seus processos de compras e fornecedores com segurança e eficiência.</p>
+        </div>
+    </div>
+
+    <div id="mainContainer" class="main-container" style="display: none;">
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">Processamento de faturas</h1>
+                <div class="user-info">
+                    <span id="userName" class="user-name">Usuário</span>
+                    <button id="logoutBtn" class="btn-logout">Sair</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <aside class="sidebar">
+                <nav class="menu">
+                    <div class="menu-item active" onclick="showSection('dashboard')">
+                        <span class="icon">📊</span>
+                        <span>Dashboard</span>
+                    </div>
+                    <div class="menu-item" onclick="showSection('processos')">
+                        <span class="icon">📋</span>
+                        <span>Processos</span>
+                    </div>
+                    <div class="menu-item" onclick="showSection('relatorios')">
+                        <span class="icon">📈</span>
+                        <span>Relatórios</span>
+                    </div>
+                    <div class="menu-item" onclick="showSection('configuracoes')">
+                        <span class="icon">⚙️</span>
+                        <span>Configurações</span>
+                    </div>
+                </nav>
+            </aside>
+
+            <main class="main-content">
+                <!-- Dashboard Section -->
+                <section id="dashboard" class="content-section active">
+                    <h2>Dashboard</h2>
+                    <div class="dashboard-cards">
+                        <div class="card">
+                            <h3>Processos em Aberto</h3>
+                            <p class="card-value">12</p>
+                        </div>
+                        <div class="card">
+                            <h3>Faturas Processadas</h3>
+                            <p class="card-value">156</p>
+                        </div>
+                        <div class="card">
+                            <h3>Fornecedores Ativos</h3>
+                            <p class="card-value">48</p>
+                        </div>
+                        <div class="card">
+                            <h3>Valor Total em Aberto</h3>
+                            <p class="card-value">R$ 125.450,00</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Process Generation Section -->
+                <section id="processos" class="content-section">
+                    <div class="section-header">
+                        <h2>Gerar Novo Processo</h2>
+                        <button class="btn-primary" onclick="clearForm()">Limpar Formulário</button>
+                    </div>
+
+                    <!-- Search Section -->
+                    <div class="search-section">
+                        <h3>Pesquisar Ordem de Produção</h3>
+                        <div class="search-container">
+                            <input 
+                                type="text" 
+                                id="searchOP" 
+                                class="search-input" 
+                                placeholder="Buscar por OP ou ID"
+                                onkeyup="searchOP()"
+                            >
+                            <button class="btn-search" onclick="performSearch()">Pesquisar</button>
+                        </div>
+                        <div id="searchResults" class="search-results"></div>
+                    </div>
+
+                    <!-- Process Form -->
+                    <form class="process-form" id="processForm">
+                        <fieldset>
+                            <legend>Informações do Processo</legend>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="processID">ID do Processo *</label>
+                                    <input 
+                                        type="text" 
+                                        id="processID" 
+                                        name="processID" 
+                                        placeholder="Gerado automaticamente"
+                                        readonly
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="op">Ordem de Produção (OP) *</label>
+                                    <input 
+                                        type="text" 
+                                        id="op" 
+                                        name="op" 
+                                        placeholder="Ex: OP-2024-001"
+                                        required
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="supplier">Fornecedor *</label>
+                                    <input 
+                                        type="text" 
+                                        id="supplier" 
+                                        name="supplier" 
+                                        placeholder="Nome do fornecedor"
+                                        required
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="invoiceNumber">Número de Fatura *</label>
+                                    <input 
+                                        type="text" 
+                                        id="invoiceNumber" 
+                                        name="invoiceNumber" 
+                                        placeholder="Ex: NF-001234"
+                                        required
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="invoiceValue">Valor da Fatura *</label>
+                                    <input 
+                                        type="number" 
+                                        id="invoiceValue" 
+                                        name="invoiceValue" 
+                                        placeholder="0,00"
+                                        step="0.01"
+                                        required
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="issueDate">Data de Emissão *</label>
+                                    <input 
+                                        type="date" 
+                                        id="issueDate" 
+                                        name="issueDate" 
+                                        required
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="dueDate">Data de Vencimento *</label>
+                                    <input 
+                                        type="date" 
+                                        id="dueDate" 
+                                        name="dueDate" 
+                                        required
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="observations">Observações</label>
+                                    <input 
+                                        type="text" 
+                                        id="observations" 
+                                        name="observations" 
+                                        placeholder="Adicione observações (opcional)"
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">Criar Processo</button>
+                                <button type="reset" class="btn-secondary">Cancelar</button>
+                            </div>
+                        </fieldset>
+                    </form>
+                </section>
+
+                <!-- Reports Section -->
+                <section id="relatorios" class="content-section">
+                    <h2>Relatórios</h2>
+                    <p>Seção de relatórios em desenvolvimento...</p>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="configuracoes" class="content-section">
+                    <h2>Configurações</h2>
+                    <p>Seção de configurações em desenvolvimento...</p>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Success Message Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>✓ Sucesso!</h2>
+            <p id="modalMessage">Processo criado com sucesso!</p>
+            <button onclick="closeModal()" class="btn-primary">Fechar</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
