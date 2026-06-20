@@ -768,3 +768,10 @@ legend {
         border: 1px solid var(--border-color);
     }
 }
+/* Ajusta o tamanho das imagens dentro dos ícones do menu */
+.menu-item .icon img {
+    width: 24px;  /* Ajuste este valor para deixar maior ou menor */
+    height: 24px; /* Mantém a proporção quadrada */
+    object-fit: contain; /* Garante que a imagem não fique distorcida */
+    vertical-align: middle; /* Ajuda a alinhar o ícone com o texto */
+}
