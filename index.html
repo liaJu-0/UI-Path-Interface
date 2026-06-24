@@ -72,19 +72,19 @@
         <div class="container">
             <aside class="sidebar">
                 <nav class="menu">
-                    <div class="menu-item active" onclick="showSection('dashboard')">
+                    <div class="menu-item active" data-section="dashboard" onclick="showSection('dashboard')">
                         <span class="icon"><img src="icons/dashboard.png" alt="Dashboard"> </span>
                         <span>Dashboard</span>
                     </div>
-                    <div class="menu-item" onclick="showSection('processos')">
+                    <div class="menu-item" data-section="processos" onclick="showSection('processos')">
                         <span class="icon"><img src="icons/engineering.png" alt="Processos"> </span>
                         <span>Processos</span>
                     </div>
-                    <div class="menu-item" onclick="showSection('relatorios')">
+                    <div class="menu-item" data-section="relatorios" onclick="showSection('relatorios')">
                         <span class="icon"><img src="icons/report.png" alt="Relatórios"></span>
                         <span>Relatórios</span>
                     </div>
-                    <div class="menu-item" onclick="showSection('configuracoes')">
+                    <div class="menu-item" data-section="configuracoes" onclick="showSection('configuracoes')">
                         <span class="icon"><img src="icons/settings.png" alt="Configurações"></span>
                         <span>Configurações</span>
                     </div>
@@ -119,7 +119,7 @@
                 <section id="processos" class="content-section">
                     <div class="section-header">
                         <h2>Gerar Novo Processo</h2>
-                        <button class="btn-primary" onclick="clearForm()">Limpar Formulário</button>
+                        <button class="btn-clear" onclick="clearForm()">Limpar Formulário</button>
                     </div>
 
                     <!-- Search Section -->
@@ -207,9 +207,13 @@
                                 <div class="form-group">
                                     <label for="issueDate">Data de Emissão *</label>
                                     <input 
-                                        type="date" 
+                                        type="text" 
                                         id="issueDate" 
                                         name="issueDate" 
+                                        placeholder="dd/mm/aaaa"
+                                        inputmode="numeric"
+                                        maxlength="10"
+                                        autocomplete="off"
                                         required
                                     >
                                 </div>
@@ -219,9 +223,13 @@
                                 <div class="form-group">
                                     <label for="dueDate">Data de Vencimento *</label>
                                     <input 
-                                        type="date" 
+                                        type="text" 
                                         id="dueDate" 
                                         name="dueDate" 
+                                        placeholder="dd/mm/aaaa"
+                                        inputmode="numeric"
+                                        maxlength="10"
+                                        autocomplete="off"
                                         required
                                     >
                                 </div>
