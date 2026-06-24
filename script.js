@@ -5,6 +5,77 @@ let currentUser = null;
 let processes = [];
 let erpCounter = 0;
 
+/* ============================================
+   ROUTING (URLs reais para login / dashboard / processos / relatórios / configurações)
+   ============================================ */
+const VALID_SECTIONS = ['dashboard', 'processos', 'relatorios', 'configuracoes'];
+
+function isLoggedIn() {
+    return currentUser !== null;
+}
+
+// Aplica a rota atual (com base no path da URL) à interface, sem empilhar histórico
+function applyRoute(path) {
+    let route = path.replace(/^\/+|\/+$/g, ''); // remove barras nas pontas
+
+    if (!isLoggedIn()) {
+        // Sem sessão, sempre cai no login
+        showLoginScreen();
+        if (route !== 'login') {
+            history.replaceState({ section: 'login' }, '', '/login');
+        }
+        return;
+    }
+
+    if (!VALID_SECTIONS.includes(route)) {
+        route = 'dashboard';
+    }
+
+    showMainScreen();
+    activateSection(route);
+    history.replaceState({ section: route }, '', '/' + route);
+}
+
+// Atualiza a URL do navegador (cria uma nova entrada no histórico)
+function navigateTo(path) {
+    const section = path.replace(/^\/+/, '');
+    history.pushState({ section: section }, '', path);
+}
+
+function showLoginScreen() {
+    document.getElementById('loginContainer').style.display = 'grid';
+    document.getElementById('mainContainer').style.display = 'none';
+}
+
+function showMainScreen() {
+    document.getElementById('loginContainer').style.display = 'none';
+    document.getElementById('mainContainer').style.display = 'flex';
+}
+
+// Ativa visualmente a seção (sem tocar na URL) — usado pelo roteador
+function activateSection(sectionId) {
+    const sections = document.querySelectorAll('.content-section');
+    sections.forEach(section => section.classList.remove('active'));
+
+    const menuItems = document.querySelectorAll('.menu-item');
+    menuItems.forEach(item => item.classList.remove('active'));
+
+    const selectedSection = document.getElementById(sectionId);
+    if (selectedSection) {
+        selectedSection.classList.add('active');
+    }
+
+    const menuItem = document.querySelector(`.menu-item[data-section="${sectionId}"]`);
+    if (menuItem) {
+        menuItem.classList.add('active');
+    }
+}
+
+// Responde ao botão voltar/avançar do navegador
+window.addEventListener('popstate', function() {
+    applyRoute(window.location.pathname);
+});
+
 // Sample data for search results
 const mockOPData = [
     { id: 'ID001', op: 'OP-2024-001', supplier: 'Fornecedor A', invoiceNumber: '', invoiceValue: '', issueDate: '', dueDate: '', observations: '' },
@@ -38,9 +109,10 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     // Update UI
     document.getElementById('userName').textContent = currentUser.name;
     
-    // Hide login and show main container
-    document.getElementById('loginContainer').style.display = 'none';
-    document.getElementById('mainContainer').style.display = 'flex';
+    // Show main container and navigate to dashboard with a real URL
+    showMainScreen();
+    activateSection('dashboard');
+    navigateTo('/dashboard');
     
     // Clear form
     document.getElementById('loginForm').reset();
@@ -50,22 +122,8 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
    NAVIGATION & SECTION DISPLAY
    ============================================ */
 function showSection(sectionId) {
-    // Hide all sections
-    const sections = document.querySelectorAll('.content-section');
-    sections.forEach(section => section.classList.remove('active'));
-    
-    // Remove active class from all menu items
-    const menuItems = document.querySelectorAll('.menu-item');
-    menuItems.forEach(item => item.classList.remove('active'));
-    
-    // Show selected section
-    const selectedSection = document.getElementById(sectionId);
-    if (selectedSection) {
-        selectedSection.classList.add('active');
-    }
-    
-    // Add active class to clicked menu item
-    event.target.closest('.menu-item').classList.add('active');
+    activateSection(sectionId);
+    navigateTo('/' + sectionId);
 }
 
 /* ============================================
@@ -76,8 +134,8 @@ document.getElementById('logoutBtn').addEventListener('click', function() {
         currentUser = null;
         
         // Hide main container and show login
-        document.getElementById('mainContainer').style.display = 'none';
-        document.getElementById('loginContainer').style.display = 'grid';
+        showLoginScreen();
+        navigateTo('/login');
         
         // Reset form
         document.getElementById('loginForm').reset();
@@ -192,24 +250,22 @@ document.getElementById('processForm').addEventListener('submit', function(e) {
    FORM VALIDATION
    ============================================ */
 function validateForm(data) {
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    
     // Check required fields
     if (!data.op || !data.supplier || !data.invoiceNumber || !data.invoiceValue) {
         alert('Por favor, preencha todos os campos obrigatórios');
         return false;
     }
     
-    // Validate dates
-    if (!dateRegex.test(data.issueDate) || !dateRegex.test(data.dueDate)) {
-        alert('Datas inválidas');
+    // Validate dates (formato dd/mm/aaaa)
+    const issueDate = parseBrDate(data.issueDate);
+    const dueDate = parseBrDate(data.dueDate);
+
+    if (!issueDate || !dueDate) {
+        alert('Datas inválidas. Use o formato dd/mm/aaaa');
         return false;
     }
     
     // Validate that due date is after issue date
-    const issueDate = new Date(data.issueDate);
-    const dueDate = new Date(data.dueDate);
-    
     if (dueDate < issueDate) {
         alert('A data de vencimento deve ser posterior à data de emissão');
         return false;
@@ -325,8 +381,13 @@ window.exportProcessesAsJSON = function() {
    AUTO-POPULATE PROCESS ID
    ============================================ */
 document.addEventListener('DOMContentLoaded', function() {
-    // Set focus to first input on page load
-    document.getElementById('email').focus();
+    // Aplica a rota com base na URL atual (login/dashboard/processos/relatorios/configuracoes)
+    applyRoute(window.location.pathname);
+
+    // Se a tela de login estiver visível, foca no campo de e-mail
+    if (!isLoggedIn()) {
+        document.getElementById('email').focus();
+    }
 });
 
 /* ============================================
@@ -342,17 +403,48 @@ document.getElementById('invoiceValue').addEventListener('input', function(e) {
 });
 
 /* ============================================
-   DATE VALIDATION
+   DATE MASK & VALIDATION (dd/mm/aaaa)
    ============================================ */
+// Aplica máscara dd/mm/aaaa enquanto o usuário digita
+function applyDateMask(inputEl) {
+    inputEl.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '').slice(0, 8);
+        let formatted = value;
+        if (value.length > 4) {
+            formatted = `${value.slice(0, 2)}/${value.slice(2, 4)}/${value.slice(4)}`;
+        } else if (value.length > 2) {
+            formatted = `${value.slice(0, 2)}/${value.slice(2)}`;
+        }
+        e.target.value = formatted;
+    });
+}
+
+// Converte "dd/mm/aaaa" em um objeto Date (ou null se inválido)
+function parseBrDate(value) {
+    if (!value) return null;
+    const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value.trim());
+    if (!match) return null;
+
+    const day = parseInt(match[1], 10);
+    const month = parseInt(match[2], 10);
+    const year = parseInt(match[3], 10);
+    const date = new Date(year, month - 1, day);
+
+    // Garante que a data existe de fato (ex: 31/02 é inválido)
+    if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+        return null;
+    }
+    return date;
+}
+
+applyDateMask(document.getElementById('issueDate'));
+applyDateMask(document.getElementById('dueDate'));
+
 document.getElementById('issueDate').addEventListener('change', function() {
-    const issueDate = new Date(this.value);
-    const dueDate = document.getElementById('dueDate');
-    
-    // Set minimum due date to issue date
-    const minDate = new Date(issueDate);
-    minDate.setDate(minDate.getDate() + 1);
-    
-    dueDate.min = minDate.toISOString().split('T')[0];
+    // Apenas valida o formato; a comparação entre as datas é feita no submit
+    if (this.value && !parseBrDate(this.value)) {
+        this.style.borderColor = '#ef4444';
+    }
 });
 
 /* ============================================
@@ -382,8 +474,8 @@ function loadDemoData() {
     document.getElementById('supplier').value = 'Empresa Teste LTDA';
     document.getElementById('invoiceNumber').value = 'NF-TEST-001';
     document.getElementById('invoiceValue').value = '5000.00';
-    document.getElementById('issueDate').value = '2024-06-01';
-    document.getElementById('dueDate').value = '2024-07-01';
+    document.getElementById('issueDate').value = '01/06/2024';
+    document.getElementById('dueDate').value = '01/07/2024';
     document.getElementById('observations').value = 'Dados de teste para demonstração';
     
     // Scroll to form
