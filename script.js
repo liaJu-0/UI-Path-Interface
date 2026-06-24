@@ -272,7 +272,7 @@ function validateForm(data) {
     }
     
     // Validate invoice value
-    if (parseFloat(data.invoiceValue) <= 0) {
+    if (parseBrCurrency(data.invoiceValue) <= 0) {
         alert('O valor da fatura deve ser maior que zero');
         return false;
     }
@@ -393,13 +393,20 @@ document.addEventListener('DOMContentLoaded', function() {
 /* ============================================
    FORM INPUT MASKING
    ============================================ */
+function parseBrCurrency(value) {
+    if (!value) return NaN;
+    const normalized = value.replace(/\./g, '').replace(',', '.');
+    return parseFloat(normalized);
+}
+
 document.getElementById('invoiceValue').addEventListener('input', function(e) {
-    // Format currency input
-    let value = e.target.value.replace(/\D/g, '');
-    value = (value / 100).toFixed(2);
-    if (!isNaN(value)) {
-        e.target.value = value;
+    let digits = e.target.value.replace(/\D/g, '');
+    if (digits === '') {
+        e.target.value = '';
+        return;
     }
+    let value = (parseInt(digits, 10) / 100).toFixed(2);
+    e.target.value = value.replace('.', ',');
 });
 
 /* ============================================
