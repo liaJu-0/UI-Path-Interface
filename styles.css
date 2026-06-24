@@ -389,6 +389,29 @@ html, body {
     font-size: 1.8rem;
 }
 
+.btn-clear {
+    flex-shrink: 0;
+    margin-left: auto;
+    padding: 8px 16px;
+    background-color: white;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-clear:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-clear:active {
+    transform: translateY(1px);
+}
+
 .search-section {
     background: white;
     padding: 24px;
@@ -733,11 +756,12 @@ legend {
 
     .section-header {
         flex-direction: column;
+        align-items: flex-start;
         gap: 16px;
     }
 
-    .section-header .btn-primary {
-        width: 100%;
+    .section-header .btn-clear {
+        align-self: flex-end;
     }
 }
 
